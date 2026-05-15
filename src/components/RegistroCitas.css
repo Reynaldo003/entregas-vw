@@ -1,0 +1,289 @@
+/* src/components/RegistroCitas.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.contenedor {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #0a1628 0%, #0d2144 40%, #0a1a38 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── CARD ── */
+.card {
+  max-width: 1050px;
+  width: 100%;
+  background: rgba(10, 22, 48, 0.75);
+  border-radius: 18px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+}
+
+/* ── HEADER ── */
+.header {
+  padding: 1.4rem 1.5rem 1rem;
+  text-align: center;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.22rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 0.55rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  color: white;
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* ── FILA 1: 5 columnas ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.9rem;
+  padding: 0.5rem 1.5rem 0.5rem;
+}
+
+/* ── FILA 2: fuente + asesor + comentarios ── */
+.fila-dos {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 0.9rem;
+  padding: 0.75rem 1.5rem 1.2rem;
+}
+
+/* ── CAMPO GENÉRICO ── */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+}
+
+.campo label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.campo label .icono {
+  font-size: 0.65rem;
+}
+
+.campo label .requerido {
+  color: #e74c3c;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  padding: 0.52rem 0.85rem;
+  font-size: 0.78rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(20, 45, 90, 0.55);
+  color: white;
+  transition: all 0.2s;
+  font-family: inherit;
+  width: 100%;
+}
+
+.campo input::placeholder,
+.campo textarea::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.campo select {
+  background: #1b3a70;
+  color: white;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.campo select option {
+  background: #122952;
+  color: white;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  outline: none;
+  border-color: rgba(100, 160, 255, 0.55);
+  background: rgba(25, 55, 110, 0.75);
+  box-shadow: 0 0 0 2px rgba(100, 160, 255, 0.12);
+}
+
+.campo small {
+  font-size: 0.58rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.campo textarea {
+  resize: none;
+  min-height: 68px;
+}
+
+/* ── ASESOR BUSCADOR ── */
+.asesor-box {
+  position: relative;
+}
+
+.asesor-box input {
+  padding-left: 2rem;
+}
+
+.asesor-box .search-icon {
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.sugerencias {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #122952;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 30;
+  margin-top: 0.2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.item-sugerencia {
+  padding: 0.48rem 0.75rem;
+  font-size: 0.73rem;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.15s;
+}
+
+.item-sugerencia:hover {
+  background: rgba(100, 160, 255, 0.18);
+}
+
+.item-sugerencia:last-child {
+  border-bottom: none;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: rgba(5, 15, 35, 0.5);
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.footer p {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.footer button {
+  background: white;
+  color: #0d1f3c;
+  border: none;
+  padding: 0.48rem 1.4rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  letter-spacing: 0.2px;
+}
+
+.footer button:hover {
+  background: #dce8ff;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .form-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .fila-dos {
+    grid-template-columns: 1fr 1fr;
+  }
+  .campo.comentarios {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+    padding: 0.8rem 1rem;
+  }
+  .fila-dos {
+    grid-template-columns: 1fr;
+    padding: 0 1rem 1rem;
+  }
+  .campo.comentarios {
+    grid-column: span 1;
+  }
+  .header h1 {
+    font-size: 1.3rem;
+  }
+  .footer {
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: center;
+  }
+}
+
+/* Overlay oscuro sobre la imagen */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(8, 18, 40, 0.88) 0%,
+    rgba(10, 25, 55, 0.82) 100%
+  );
+  z-index: 0;
+}
+
+/* La card debe estar encima del overlay */
+.card {
+  position: relative;
+  z-index: 1;
+}
