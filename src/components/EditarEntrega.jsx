@@ -82,10 +82,7 @@ function crearEstadoInicial() {
     vin: "",
     modelo: "",
     fechaEntrega: "",
-    entregaFisica: "pendiente",
     asesorVentas: "",
-    idNadin: "",
-    idDms: "",
     comentarios: "",
   };
 }
@@ -209,10 +206,7 @@ export default function EditarEntrega({ onGuardado }) {
     vin: form.vin.trim().toUpperCase(),
     modelo_version: form.modelo,
     fecha_hora_entrega: form.fechaEntrega || null,
-    entrega_reportada: form.entregaFisica === "completada",
     asesor_ventas: form.asesorVentas,
-    id_cliente_sf_nadin: form.idNadin.trim(),
-    id_cliente_sf_dms: form.idDms.trim(),
     comentarios: form.comentarios.trim(),
   });
 
@@ -312,7 +306,7 @@ export default function EditarEntrega({ onGuardado }) {
 
         <div className="relative z-10 px-4 sm:px-6 pb-5">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <Campo error={errores.dealer} hint="Selecciona el dealer.">
+            <Campo error={errores.dealer}>
               <Label icon={<Building2 size={14} />} text="Dealer" required />
 
               <select
@@ -332,7 +326,7 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <Campo error={errores.nombre} hint="Captura el nombre del cliente.">
+            <Campo error={errores.nombre}>
               <Label
                 icon={<User size={14} />}
                 text="Nombre del cliente"
@@ -350,7 +344,7 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.telefono} hint="Captura un teléfono numérico.">
+            <Campo error={errores.telefono}>
               <Label icon={<Phone size={14} />} text="Teléfono" required />
 
               <input
@@ -369,7 +363,7 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.vin} hint="Ingresa el VIN o número de chasis.">
+            <Campo error={errores.vin}>
               <Label icon={<Hash size={14} />} text="VIN / Chasis" required />
 
               <input
@@ -382,7 +376,7 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.modelo} hint="Selecciona el modelo / versión.">
+            <Campo error={errores.modelo}>
               <Label icon={<Car size={14} />} text="Modelo / versión" required />
 
               <select
@@ -400,10 +394,7 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <Campo
-              error={errores.fechaEntrega}
-              hint="Selecciona fecha y hora de entrega."
-            >
+            <Campo error={errores.fechaEntrega}>
               <Label
                 icon={<Calendar size={14} />}
                 text="Fecha y hora de entrega"
@@ -420,40 +411,7 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <div className="flex flex-col gap-1.5">
-              <Label icon={<Truck size={14} />} text="Entrega física" />
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  disabled={deshabilitado}
-                  onClick={() => setCampo("entregaFisica", "pendiente")}
-                  className={`min-h-[44px] rounded-xl text-xs font-bold border transition ${form.entregaFisica === "pendiente"
-                    ? "bg-yellow-500/20 border-yellow-300 text-yellow-200"
-                    : "bg-blue-950/70 border-white/15 text-white/55 hover:text-white"
-                    } disabled:opacity-60`}
-                >
-                  ⏳ Pendiente
-                </button>
-
-                <button
-                  type="button"
-                  disabled={deshabilitado}
-                  onClick={() => setCampo("entregaFisica", "completada")}
-                  className={`min-h-[44px] rounded-xl text-xs font-bold border transition ${form.entregaFisica === "completada"
-                    ? "bg-green-500/20 border-green-300 text-green-200"
-                    : "bg-blue-950/70 border-white/15 text-white/55 hover:text-white"
-                    } disabled:opacity-60`}
-                >
-                  ✅ Completada
-                </button>
-              </div>
-            </div>
-
-            <Campo
-              error={errores.asesorVentas}
-              hint="Selecciona el asesor de ventas."
-            >
+            <Campo error={errores.asesorVentas}>
               <Label
                 icon={<UserCheck size={14} />}
                 text="Asesor ventas"
@@ -477,52 +435,24 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <Campo hint="ID del cliente en SF-NADIN.">
-              <Label
-                icon={<CreditCard size={14} />}
-                text="ID Cliente / SF-NADIN"
-              />
+            <div className="md:col-span-2 xl:col-span-2">
+              <label className="text-[0.7rem] sm:text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5 drop-shadow-md mb-1.5">
+                <MessageSquare size={14} />
+                Comentarios
+              </label>
 
-              <input
-                type="text"
-                placeholder="ID SF-NADIN"
-                value={form.idNadin}
+              <textarea
+                placeholder="Notas internas..."
+                rows={1}
+                value={form.comentarios}
                 disabled={deshabilitado}
-                onChange={(e) => setCampo("idNadin", e.target.value)}
-                className={`${inputBase} ${inputOk}`}
+                onChange={(e) => setCampo("comentarios", e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-xl bg-blue-950/70 border border-white/15 text-white placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-blue-300/50 resize-none transition disabled:opacity-60"
               />
-            </Campo>
-
-            <Campo hint="ID del cliente en SF-DMS.">
-              <Label icon={<Archive size={14} />} text="ID Cliente / SF-DMS" />
-
-              <input
-                type="text"
-                placeholder="ID SF-DMS"
-                value={form.idDms}
-                disabled={deshabilitado}
-                onChange={(e) => setCampo("idDms", e.target.value)}
-                className={`${inputBase} ${inputOk}`}
-              />
-            </Campo>
-          </div>
-
-          <div className="mt-4">
-            <label className="text-[0.7rem] sm:text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5 drop-shadow-md mb-1.5">
-              <MessageSquare size={14} />
-              Comentarios
-            </label>
-
-            <textarea
-              placeholder="Notas internas..."
-              rows={4}
-              value={form.comentarios}
-              disabled={deshabilitado}
-              onChange={(e) => setCampo("comentarios", e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-xl bg-blue-950/70 border border-white/15 text-white placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-blue-300/50 resize-none transition disabled:opacity-60"
-            />
+            </div>
           </div>
         </div>
+
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center gap-3 px-4 sm:px-6 py-4 bg-black/30 border-t border-white/10">
           <button
