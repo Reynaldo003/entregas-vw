@@ -74,23 +74,25 @@ const ASESORES = [
   "EDGAR JESUS GOMEZ PEREZ",
 ];
 
-const estadoInicial = {
-  dealer: "",
-  nombre: "",
-  telefono: "",
-  vin: "",
-  modelo: "",
-  fechaEntrega: "",
-  entregaFisica: "pendiente",
-  asesorVentas: "",
-  preparadaPor: "",
-  idNadin: "",
-  idDms: "",
-  comentarios: "",
-};
+function crearEstadoInicial() {
+  return {
+    dealer: "",
+    nombre: "",
+    telefono: "",
+    vin: "",
+    modelo: "",
+    fechaEntrega: "",
+    entregaFisica: "pendiente",
+    asesorVentas: "",
+    preparadaPor: "",
+    idNadin: "",
+    idDms: "",
+    comentarios: "",
+  };
+}
 
 const inputBase =
-  "w-full min-h-[44px] px-3 py-2 text-sm rounded-xl bg-blue-950/70 border text-white placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-blue-300/50 transition";
+  "w-full min-h-[44px] px-3 py-2 text-sm rounded-xl bg-blue-950/70 border text-white placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-blue-300/50 transition disabled:opacity-60";
 
 const inputOk = "border-white/15";
 const inputErr = "border-red-500 ring-2 ring-red-500/25";
@@ -131,6 +133,7 @@ function fechaParaInput(valor) {
   }
 
   const fecha = new Date(valor);
+
   if (Number.isNaN(fecha.getTime())) return "";
 
   const pad = (n) => String(n).padStart(2, "0");
@@ -169,6 +172,7 @@ function mapearEntregaApi(data) {
 
 function nombrePdfSeguro(form, id) {
   const cliente = form.nombre || "cliente";
+
   const limpio = cliente
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -180,29 +184,29 @@ function nombrePdfSeguro(form, id) {
 }
 
 export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
-  const [form, setForm] = useState(estadoInicial);
+  const [form, setForm] = useState(crearEstadoInicial());
   const [registroId, setRegistroId] = useState(id);
+
   const [errores, setErrores] = useState({});
   const [cargando, setCargando] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [generandoPdf, setGenerandoPdf] = useState(false);
   const [errorGeneral, setErrorGeneral] = useState("");
+  const [mensajeOk, setMensajeOk] = useState("");
 
   useEffect(() => {
     let activo = true;
 
     async function cargarEntrega() {
       if (!id) {
-        setRegistroId(null);
-        setForm(estadoInicial);
-        setErrores({});
-        setErrorGeneral("");
+        limpiarFormulario();
         return;
       }
 
       try {
         setCargando(true);
         setErrorGeneral("");
+        setMensajeOk("");
 
         const data = await apiEntrega.get(id);
 
@@ -223,7 +227,15 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
     return () => {
       activo = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const limpiarFormulario = () => {
+    setForm(crearEstadoInicial());
+    setRegistroId(null);
+    setErrores({});
+    setErrorGeneral("");
+  };
 
   const setCampo = (campo, valor) => {
     setForm((prev) => ({
@@ -237,26 +249,34 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
     }));
 
     setErrorGeneral("");
+    setMensajeOk("");
   };
 
   const validar = () => {
     const e = {};
 
     if (!form.dealer) e.dealer = "Selecciona el dealer.";
+
     if (!form.nombre.trim()) e.nombre = "Ingresa el nombre del cliente.";
+
     if (!form.telefono || form.telefono.length < 10) {
       e.telefono = "Ingresa un teléfono válido.";
     }
+
     if (!form.vin.trim()) e.vin = "Ingresa el VIN / Chasis.";
+
     if (!form.modelo || form.modelo === "Seleccionar...") {
       e.modelo = "Selecciona un modelo.";
     }
+
     if (!form.fechaEntrega) {
       e.fechaEntrega = "Selecciona fecha y hora de entrega.";
     }
+
     if (!form.asesorVentas.trim()) {
       e.asesorVentas = "Selecciona el asesor de ventas.";
     }
+
     if (!form.preparadaPor.trim()) {
       e.preparadaPor = "Ingresa quién prepara la entrega.";
     }
@@ -281,59 +301,85 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
     comentarios: form.comentarios.trim(),
   });
 
-  const guardarEntrega = async ({ mostrarAlerta = true } = {}) => {
-    if (!validar()) return null;
+  const guardarEntregaSinLimpiar = async () => {
+    const payload = crearPayload();
 
-    try {
-      setGuardando(true);
-      setErrorGeneral("");
+    const guardado = registroId
+      ? await apiEntrega.patch(registroId, payload)
+      : await apiEntrega.create(payload);
 
-      const payload = crearPayload();
-
-      const guardado = registroId
-        ? await apiEntrega.patch(registroId, payload)
-        : await apiEntrega.create(payload);
-
-      setRegistroId(guardado.id);
-      setForm(mapearEntregaApi(guardado));
-
-      if (typeof onGuardado === "function") {
-        onGuardado(guardado);
-      }
-
-      if (mostrarAlerta) {
-        alert("✅ Entrega guardada correctamente.");
-      }
-
-      return guardado;
-    } catch (error) {
-      setErrorGeneral(error.message || "No se pudo guardar la entrega.");
-      return null;
-    } finally {
-      setGuardando(false);
+    if (typeof onGuardado === "function") {
+      onGuardado(guardado);
     }
+
+    setRegistroId(guardado.id);
+    setForm(mapearEntregaApi(guardado));
+
+    return guardado;
   };
 
   const handleGuardar = async () => {
-    await guardarEntrega();
-  };
+    if (!validar()) return;
 
-  const handleGenerarPdf = async () => {
+    const formAntesDeLimpiar = { ...form };
+
     try {
+      setGuardando(true);
       setGenerandoPdf(true);
       setErrorGeneral("");
+      setMensajeOk("");
 
-      const guardado = await guardarEntrega({ mostrarAlerta: false });
+      const guardado = await guardarEntregaSinLimpiar();
 
-      if (!guardado?.id) return;
+      if (!guardado?.id) {
+        throw new Error("La entrega se guardó, pero no se recibió el ID para generar el PDF.");
+      }
 
       await apiEntrega.downloadPdf(
         guardado.id,
-        nombrePdfSeguro(form, guardado.id)
+        nombrePdfSeguro(formAntesDeLimpiar, guardado.id)
       );
+
+      limpiarFormulario();
+      setMensajeOk("✅ Entrega guardada y PDF generado correctamente.");
+    } catch (error) {
+      setErrorGeneral(
+        error.message || "No se pudo guardar la entrega o generar el PDF."
+      );
+    } finally {
+      setGuardando(false);
+      setGenerandoPdf(false);
+    }
+  };
+
+  const handleGenerarPdf = async () => {
+    if (!validar()) return;
+
+    const formAntesDeLimpiar = { ...form };
+
+    try {
+      setGuardando(true);
+      setGenerandoPdf(true);
+      setErrorGeneral("");
+      setMensajeOk("");
+
+      const guardado = await guardarEntregaSinLimpiar();
+
+      if (!guardado?.id) {
+        throw new Error("La entrega se guardó, pero no se recibió el ID para generar el PDF.");
+      }
+
+      await apiEntrega.downloadPdf(
+        guardado.id,
+        nombrePdfSeguro(formAntesDeLimpiar, guardado.id)
+      );
+
+      limpiarFormulario();
+      setMensajeOk("✅ PDF generado y encuesta guardada correctamente.");
     } catch (error) {
       setErrorGeneral(error.message || "No se pudo generar el PDF.");
     } finally {
+      setGuardando(false);
       setGenerandoPdf(false);
     }
   };
@@ -388,6 +434,12 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
           </div>
         )}
 
+        {mensajeOk && (
+          <div className="relative z-10 mx-4 sm:mx-6 mb-3 px-4 py-3 rounded-xl bg-green-900/40 border border-green-400/40 text-green-100 text-xs sm:text-sm font-semibold">
+            {mensajeOk}
+          </div>
+        )}
+
         {(primerError || errorGeneral) && (
           <div className="relative z-10 mx-4 sm:mx-6 mb-3 px-4 py-3 rounded-xl bg-red-900/40 border border-red-400/40 text-red-100 text-xs sm:text-sm font-semibold">
             ⚠ {errorGeneral || primerError}
@@ -398,17 +450,18 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             <Campo error={errores.dealer} hint="Selecciona el dealer.">
               <Label icon={<Building2 size={14} />} text="Dealer" required />
+
               <select
                 value={form.dealer}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("dealer", e.target.value)}
-                className={`${inputBase} ${errores.dealer ? inputErr : inputOk
-                  }`}
+                className={`${inputBase} ${errores.dealer ? inputErr : inputOk}`}
               >
                 <option value="">Seleccionar...</option>
-                {DEALERS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
+
+                {DEALERS.map((dealer) => (
+                  <option key={dealer} value={dealer}>
+                    {dealer}
                   </option>
                 ))}
               </select>
@@ -420,19 +473,20 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                 text="Nombre del cliente"
                 required
               />
+
               <input
                 type="text"
                 placeholder="NOMBRE COMPLETO"
                 value={form.nombre}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("nombre", e.target.value)}
-                className={`${inputBase} ${errores.nombre ? inputErr : inputOk
-                  }`}
+                className={`${inputBase} ${errores.nombre ? inputErr : inputOk}`}
               />
             </Campo>
 
             <Campo error={errores.telefono} hint="Captura un teléfono numérico.">
               <Label icon={<Phone size={14} />} text="Teléfono" required />
+
               <input
                 type="text"
                 inputMode="numeric"
@@ -444,13 +498,13 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                   const val = e.target.value.replace(/\D/g, "").slice(0, 12);
                   setCampo("telefono", val);
                 }}
-                className={`${inputBase} ${errores.telefono ? inputErr : inputOk
-                  }`}
+                className={`${inputBase} ${errores.telefono ? inputErr : inputOk}`}
               />
             </Campo>
 
             <Campo error={errores.vin} hint="Ingresa el VIN o número de chasis.">
               <Label icon={<Hash size={14} />} text="VIN / Chasis" required />
+
               <input
                 type="text"
                 placeholder="WVW3N4D24ST050404"
@@ -463,16 +517,16 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
 
             <Campo error={errores.modelo} hint="Selecciona el modelo / versión.">
               <Label icon={<Car size={14} />} text="Modelo / versión" required />
+
               <select
                 value={form.modelo}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("modelo", e.target.value)}
-                className={`${inputBase} ${errores.modelo ? inputErr : inputOk
-                  }`}
+                className={`${inputBase} ${errores.modelo ? inputErr : inputOk}`}
               >
-                {MODELOS.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
+                {MODELOS.map((modelo) => (
+                  <option key={modelo} value={modelo}>
+                    {modelo}
                   </option>
                 ))}
               </select>
@@ -487,6 +541,7 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                 text="Fecha y hora de entrega"
                 required
               />
+
               <input
                 type="datetime-local"
                 value={form.fechaEntrega}
@@ -536,6 +591,7 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                 text="Asesor ventas"
                 required
               />
+
               <select
                 value={form.asesorVentas}
                 disabled={deshabilitado}
@@ -544,9 +600,10 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                   }`}
               >
                 <option value="">Seleccionar...</option>
-                {ASESORES.map((a) => (
-                  <option key={a} value={a}>
-                    {a}
+
+                {ASESORES.map((asesor) => (
+                  <option key={asesor} value={asesor}>
+                    {asesor}
                   </option>
                 ))}
               </select>
@@ -557,6 +614,7 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
               hint="Ingresa quién prepara la entrega."
             >
               <Label icon={<Wrench size={14} />} text="Preparada por" required />
+
               <input
                 type="text"
                 placeholder="NOMBRE COMPLETO"
@@ -573,6 +631,7 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                 icon={<CreditCard size={14} />}
                 text="ID Cliente / SF-NADIN"
               />
+
               <input
                 type="text"
                 placeholder="ID SF-NADIN"
@@ -585,6 +644,7 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
 
             <Campo hint="ID del cliente en SF-DMS.">
               <Label icon={<Archive size={14} />} text="ID Cliente / SF-DMS" />
+
               <input
                 type="text"
                 placeholder="ID SF-DMS"
@@ -643,12 +703,12 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
             disabled={deshabilitado}
             className="w-full sm:w-auto flex justify-center items-center gap-2 bg-white text-[#0d1f3c] font-bold text-sm px-5 py-3 sm:py-2 rounded-full hover:bg-blue-100 transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:hover:translate-y-0"
           >
-            {guardando ? (
+            {guardando || generandoPdf ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
               <ClipboardCheck size={16} />
             )}
-            Guardar cambios
+            Guardar y generar PDF
           </button>
         </div>
       </div>
