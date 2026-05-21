@@ -84,7 +84,6 @@ function crearEstadoInicial() {
     fechaEntrega: "",
     entregaFisica: "pendiente",
     asesorVentas: "",
-    preparadaPor: "",
     idNadin: "",
     idDms: "",
     comentarios: "",
@@ -197,10 +196,6 @@ export default function EditarEntrega({ onGuardado }) {
       nuevosErrores.asesorVentas = "Selecciona el asesor de ventas.";
     }
 
-    if (!form.preparadaPor.trim()) {
-      nuevosErrores.preparadaPor = "Ingresa quién prepara la entrega.";
-    }
-
     setErrores(nuevosErrores);
 
     return Object.keys(nuevosErrores).length === 0;
@@ -216,7 +211,6 @@ export default function EditarEntrega({ onGuardado }) {
     fecha_hora_entrega: form.fechaEntrega || null,
     entrega_reportada: form.entregaFisica === "completada",
     asesor_ventas: form.asesorVentas,
-    preparada_por: form.preparadaPor.trim(),
     id_cliente_sf_nadin: form.idNadin.trim(),
     id_cliente_sf_dms: form.idDms.trim(),
     comentarios: form.comentarios.trim(),
@@ -271,8 +265,7 @@ export default function EditarEntrega({ onGuardado }) {
     errores.vin ||
     errores.modelo ||
     errores.fechaEntrega ||
-    errores.asesorVentas ||
-    errores.preparadaPor;
+    errores.asesorVentas;
 
   return (
     <div
@@ -436,8 +429,8 @@ export default function EditarEntrega({ onGuardado }) {
                   disabled={deshabilitado}
                   onClick={() => setCampo("entregaFisica", "pendiente")}
                   className={`min-h-[44px] rounded-xl text-xs font-bold border transition ${form.entregaFisica === "pendiente"
-                      ? "bg-yellow-500/20 border-yellow-300 text-yellow-200"
-                      : "bg-blue-950/70 border-white/15 text-white/55 hover:text-white"
+                    ? "bg-yellow-500/20 border-yellow-300 text-yellow-200"
+                    : "bg-blue-950/70 border-white/15 text-white/55 hover:text-white"
                     } disabled:opacity-60`}
                 >
                   ⏳ Pendiente
@@ -448,8 +441,8 @@ export default function EditarEntrega({ onGuardado }) {
                   disabled={deshabilitado}
                   onClick={() => setCampo("entregaFisica", "completada")}
                   className={`min-h-[44px] rounded-xl text-xs font-bold border transition ${form.entregaFisica === "completada"
-                      ? "bg-green-500/20 border-green-300 text-green-200"
-                      : "bg-blue-950/70 border-white/15 text-white/55 hover:text-white"
+                    ? "bg-green-500/20 border-green-300 text-green-200"
+                    : "bg-blue-950/70 border-white/15 text-white/55 hover:text-white"
                     } disabled:opacity-60`}
                 >
                   ✅ Completada
@@ -482,23 +475,6 @@ export default function EditarEntrega({ onGuardado }) {
                   </option>
                 ))}
               </select>
-            </Campo>
-
-            <Campo
-              error={errores.preparadaPor}
-              hint="Ingresa quién prepara la entrega."
-            >
-              <Label icon={<Wrench size={14} />} text="Preparada por" required />
-
-              <input
-                type="text"
-                placeholder="NOMBRE COMPLETO"
-                value={form.preparadaPor}
-                disabled={deshabilitado}
-                onChange={(e) => setCampo("preparadaPor", e.target.value)}
-                className={`${inputBase} ${errores.preparadaPor ? inputErr : inputOk
-                  }`}
-              />
             </Campo>
 
             <Campo hint="ID del cliente en SF-NADIN.">
