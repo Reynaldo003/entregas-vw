@@ -284,12 +284,8 @@ export default function EditarEntrega({ onGuardado }) {
           </span>
 
           <h1 className="text-white text-2xl sm:text-3xl font-bold tracking-tight">
-            Encuesta de entrega
+            Programacion de Entregas
           </h1>
-
-          <p className="text-white/70 text-xs sm:text-sm mt-1">
-            Registro de entrega y generación automática de PDF
-          </p>
         </div>
 
         {mensajeOk && (
