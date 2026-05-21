@@ -1,21 +1,19 @@
 // src/components/EditarEntrega.jsx
 import { useState } from "react";
 import {
-  Archive,
   Building2,
   Calendar,
   Car,
   ClipboardCheck,
-  CreditCard,
   Hash,
   Loader2,
   MessageSquare,
+  Palette,
   Phone,
   RotateCcw,
-  Truck,
   User,
   UserCheck,
-  Wrench,
+  Layers3,
 } from "lucide-react";
 
 import { apiEntrega } from "../lib/apiEntrega";
@@ -53,6 +51,42 @@ const MODELOS = [
   "Crafter",
 ];
 
+const VERSIONES = [
+  "Seleccionar...",
+  "Trendline",
+  "Comfortline",
+  "Highline",
+  "Sportline",
+  "GLI",
+  "GTI",
+  "R",
+  "Peak Edition",
+  "Robust",
+  "Extreme",
+  "Otro",
+];
+
+const COLORES = [
+  "Seleccionar...",
+  "Blanco Candy",
+  "Blanco Puro",
+  "Plata Reflex",
+  "Plata Pirita",
+  "Plata Sirius",
+  "Gris Platino",
+  "Gris Carbon Steel",
+  "Gris Franela",
+  "Negro Ninja",
+  "Negro Profundo",
+  "Azul Rising",
+  "Azul Monterrey",
+  "Rojo Wild Cherry",
+  "Rojo Kings",
+  "Amarillo Kurkuma",
+  "Verde Vibrante",
+  "Otro",
+];
+
 const ASESORES = [
   "AURA MARLIZETH FERNANDEZ LOPEZ",
   "Bianca Isabel Chavez Alarcon",
@@ -81,6 +115,8 @@ function crearEstadoInicial() {
     telefono: "",
     vin: "",
     modelo: "",
+    version: "",
+    color: "",
     fechaEntrega: "",
     asesorVentas: "",
     comentarios: "",
@@ -185,6 +221,14 @@ export default function EditarEntrega({ onGuardado }) {
       nuevosErrores.modelo = "Selecciona un modelo.";
     }
 
+    if (!form.version || form.version === "Seleccionar...") {
+      nuevosErrores.version = "Selecciona una versión.";
+    }
+
+    if (!form.color || form.color === "Seleccionar...") {
+      nuevosErrores.color = "Selecciona un color.";
+    }
+
     if (!form.fechaEntrega) {
       nuevosErrores.fechaEntrega = "Selecciona fecha y hora de entrega.";
     }
@@ -204,9 +248,17 @@ export default function EditarEntrega({ onGuardado }) {
     telefono: form.telefono.trim(),
     correo: "",
     vin: form.vin.trim().toUpperCase(),
+
     modelo_version: form.modelo,
+    version: form.version,
+    color: form.color,
+
     fecha_hora_entrega: form.fechaEntrega || null,
+    entrega_reportada: true,
     asesor_ventas: form.asesorVentas,
+    preparada_por: "",
+    id_cliente_sf_nadin: "",
+    id_cliente_sf_dms: "",
     comentarios: form.comentarios.trim(),
   });
 
@@ -224,7 +276,9 @@ export default function EditarEntrega({ onGuardado }) {
       const guardado = await apiEntrega.create(payload);
 
       if (!guardado?.id) {
-        throw new Error("La entrega fue registrada, pero el backend no regresó el ID.");
+        throw new Error(
+          "La entrega fue registrada, pero el backend no regresó el ID."
+        );
       }
 
       await apiEntrega.downloadPdf(
@@ -258,6 +312,8 @@ export default function EditarEntrega({ onGuardado }) {
     errores.telefono ||
     errores.vin ||
     errores.modelo ||
+    errores.version ||
+    errores.color ||
     errores.fechaEntrega ||
     errores.asesorVentas;
 
@@ -284,8 +340,12 @@ export default function EditarEntrega({ onGuardado }) {
           </span>
 
           <h1 className="text-white text-2xl sm:text-3xl font-bold tracking-tight">
-            Programacion de Entregas
+            Encuesta de entrega
           </h1>
+
+          <p className="text-white/70 text-xs sm:text-sm mt-1">
+            Registro de entrega y generación automática de PDF
+          </p>
         </div>
 
         {mensajeOk && (
@@ -302,9 +362,8 @@ export default function EditarEntrega({ onGuardado }) {
 
         <div className="relative z-10 px-4 sm:px-6 pb-5">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <Campo error={errores.dealer}>
+            <Campo error={errores.dealer} hint="Selecciona el dealer.">
               <Label icon={<Building2 size={14} />} text="Dealer" required />
-
               <select
                 value={form.dealer}
                 disabled={deshabilitado}
@@ -322,13 +381,12 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <Campo error={errores.nombre}>
+            <Campo error={errores.nombre} hint="Captura el nombre del cliente.">
               <Label
                 icon={<User size={14} />}
                 text="Nombre del cliente"
                 required
               />
-
               <input
                 type="text"
                 placeholder="NOMBRE COMPLETO"
@@ -340,9 +398,8 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.telefono}>
+            <Campo error={errores.telefono} hint="Captura un teléfono numérico.">
               <Label icon={<Phone size={14} />} text="Teléfono" required />
-
               <input
                 type="text"
                 inputMode="numeric"
@@ -359,9 +416,8 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.vin}>
+            <Campo error={errores.vin} hint="Ingresa el VIN o número de chasis.">
               <Label icon={<Hash size={14} />} text="VIN / Chasis" required />
-
               <input
                 type="text"
                 placeholder="WVW3N4D24ST050404"
@@ -372,9 +428,8 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.modelo}>
-              <Label icon={<Car size={14} />} text="Modelo / versión" required />
-
+            <Campo error={errores.modelo} hint="Selecciona el modelo.">
+              <Label icon={<Car size={14} />} text="Modelo" required />
               <select
                 value={form.modelo}
                 disabled={deshabilitado}
@@ -390,13 +445,49 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <Campo error={errores.fechaEntrega}>
+            <Campo error={errores.version} hint="Selecciona la versión.">
+              <Label icon={<Layers3 size={14} />} text="Versión" required />
+              <select
+                value={form.version}
+                disabled={deshabilitado}
+                onChange={(e) => setCampo("version", e.target.value)}
+                className={`${inputBase} ${errores.version ? inputErr : inputOk
+                  }`}
+              >
+                {VERSIONES.map((version) => (
+                  <option key={version} value={version}>
+                    {version}
+                  </option>
+                ))}
+              </select>
+            </Campo>
+
+            <Campo error={errores.color} hint="Selecciona el color.">
+              <Label icon={<Palette size={14} />} text="Color" required />
+              <select
+                value={form.color}
+                disabled={deshabilitado}
+                onChange={(e) => setCampo("color", e.target.value)}
+                className={`${inputBase} ${errores.color ? inputErr : inputOk
+                  }`}
+              >
+                {COLORES.map((color) => (
+                  <option key={color} value={color}>
+                    {color}
+                  </option>
+                ))}
+              </select>
+            </Campo>
+
+            <Campo
+              error={errores.fechaEntrega}
+              hint="Selecciona fecha y hora de entrega."
+            >
               <Label
                 icon={<Calendar size={14} />}
                 text="Fecha y hora de entrega"
                 required
               />
-
               <input
                 type="datetime-local"
                 value={form.fechaEntrega}
@@ -407,13 +498,15 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.asesorVentas}>
+            <Campo
+              error={errores.asesorVentas}
+              hint="Selecciona el asesor de ventas."
+            >
               <Label
                 icon={<UserCheck size={14} />}
                 text="Asesor ventas"
                 required
               />
-
               <select
                 value={form.asesorVentas}
                 disabled={deshabilitado}
@@ -431,7 +524,7 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <div className="md:col-span-2 xl:col-span-2">
+            <div className="md:col-span-2 xl:col-span-3">
               <label className="text-[0.7rem] sm:text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5 drop-shadow-md mb-1.5">
                 <MessageSquare size={14} />
                 Comentarios
@@ -439,7 +532,7 @@ export default function EditarEntrega({ onGuardado }) {
 
               <textarea
                 placeholder="Notas internas..."
-                rows={1}
+                rows={4}
                 value={form.comentarios}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("comentarios", e.target.value)}
@@ -448,7 +541,6 @@ export default function EditarEntrega({ onGuardado }) {
             </div>
           </div>
         </div>
-
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center gap-3 px-4 sm:px-6 py-4 bg-black/30 border-t border-white/10">
           <button
