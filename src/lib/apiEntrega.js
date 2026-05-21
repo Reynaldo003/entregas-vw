@@ -5,9 +5,13 @@ const API =
 
 function getAuthHeader() {
   try {
-    const t = localStorage.getItem("auth.access");
-    if (!t) return {};
-    return { Authorization: `Bearer ${t}` };
+    const token = localStorage.getItem("auth.access");
+
+    if (!token) return {};
+
+    return {
+      Authorization: `Bearer ${token}`,
+    };
   } catch {
     return {};
   }
@@ -59,9 +63,9 @@ async function http(
     return await res.blob();
   }
 
-  const ct = res.headers.get("content-type") || "";
+  const contentType = res.headers.get("content-type") || "";
 
-  if (ct.includes("application/json")) {
+  if (contentType.includes("application/json")) {
     return await res.json();
   }
 
@@ -80,11 +84,22 @@ function descargarBlob(blob, nombreArchivo) {
 
   a.href = url;
   a.download = limpiarNombreArchivo(nombreArchivo);
+
   document.body.appendChild(a);
   a.click();
   a.remove();
 
   window.URL.revokeObjectURL(url);
+}
+
+async function crearEntrega(payload) {
+  return await http("/citas/api/entregas/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 }
 
 async function descargarPdfEntrega(id, nombreArchivo) {
@@ -94,41 +109,11 @@ async function descargarPdfEntrega(id, nombreArchivo) {
   });
 
   descargarBlob(blob, nombreArchivo || `encuesta_entrega_${id}.pdf`);
+
   return blob;
 }
 
 export const apiEntrega = {
-  list: () => http("/citas/api/entregas/"),
-  get: (id) => http(`/citas/api/entregas/${id}/`),
-
-  create: (payload) =>
-    http("/citas/api/entregas/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }),
-
-  update: (id, payload) =>
-    http(`/citas/api/entregas/${id}/`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }),
-
-  patch: (id, payload) =>
-    http(`/citas/api/entregas/${id}/`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }),
-
-  remove: (id) => http(`/citas/api/entregas/${id}/`, { method: "DELETE" }),
-
-  pdf: (id) =>
-    http(`/citas/api/entregas/${id}/pdf/`, {
-      method: "GET",
-      responseType: "blob",
-    }),
-
+  create: crearEntrega,
   downloadPdf: descargarPdfEntrega,
 };
