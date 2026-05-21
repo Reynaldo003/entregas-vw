@@ -165,7 +165,7 @@ function nombrePdfSeguro(form, id) {
     .replace(/\s+/g, "_")
     .toLowerCase();
 
-  return `encuesta_entrega_${id}_${limpio}.pdf`;
+  return `programacion_entrega_${id}_${limpio}.pdf`;
 }
 
 export default function EditarEntrega({ onGuardado }) {
@@ -340,12 +340,8 @@ export default function EditarEntrega({ onGuardado }) {
           </span>
 
           <h1 className="text-white text-2xl sm:text-3xl font-bold tracking-tight">
-            Encuesta de entrega
+            Programacion de Entrega
           </h1>
-
-          <p className="text-white/70 text-xs sm:text-sm mt-1">
-            Registro de entrega y generación automática de PDF
-          </p>
         </div>
 
         {mensajeOk && (
