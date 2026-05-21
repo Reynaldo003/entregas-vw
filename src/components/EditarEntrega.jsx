@@ -1,5 +1,5 @@
 // src/components/EditarEntrega.jsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Archive,
   Building2,
@@ -7,11 +7,11 @@ import {
   Car,
   ClipboardCheck,
   CreditCard,
-  FileText,
   Hash,
   Loader2,
   MessageSquare,
   Phone,
+  RotateCcw,
   Truck,
   User,
   UserCheck,
@@ -123,53 +123,6 @@ function Label({ icon, text, required = false }) {
   );
 }
 
-function fechaParaInput(valor) {
-  if (!valor) return "";
-
-  const texto = String(valor);
-
-  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(texto)) {
-    return texto.slice(0, 16);
-  }
-
-  const fecha = new Date(valor);
-
-  if (Number.isNaN(fecha.getTime())) return "";
-
-  const pad = (n) => String(n).padStart(2, "0");
-
-  return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(
-    fecha.getDate()
-  )}T${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`;
-}
-
-function telefonoParaInput(valor) {
-  const digits = String(valor || "").replace(/\D/g, "");
-
-  if (digits.length === 12 && digits.startsWith("52")) {
-    return digits.slice(2);
-  }
-
-  return digits.slice(0, 12);
-}
-
-function mapearEntregaApi(data) {
-  return {
-    dealer: data?.agencia || "",
-    nombre: data?.cliente?.nombre || "",
-    telefono: telefonoParaInput(data?.cliente?.telefono || ""),
-    vin: data?.vin || "",
-    modelo: data?.modelo_version || "",
-    fechaEntrega: fechaParaInput(data?.fecha_hora_entrega),
-    entregaFisica: data?.entrega_reportada ? "completada" : "pendiente",
-    asesorVentas: data?.asesor_ventas || "",
-    preparadaPor: data?.preparada_por || "",
-    idNadin: data?.id_cliente_sf_nadin || "",
-    idDms: data?.id_cliente_sf_dms || "",
-    comentarios: data?.comentarios || "",
-  };
-}
-
 function nombrePdfSeguro(form, id) {
   const cliente = form.nombre || "cliente";
 
@@ -183,56 +136,17 @@ function nombrePdfSeguro(form, id) {
   return `encuesta_entrega_${id}_${limpio}.pdf`;
 }
 
-export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
+export default function EditarEntrega({ onGuardado }) {
   const [form, setForm] = useState(crearEstadoInicial());
-  const [registroId, setRegistroId] = useState(id);
-
   const [errores, setErrores] = useState({});
-  const [cargando, setCargando] = useState(false);
   const [guardando, setGuardando] = useState(false);
-  const [generandoPdf, setGenerandoPdf] = useState(false);
   const [errorGeneral, setErrorGeneral] = useState("");
   const [mensajeOk, setMensajeOk] = useState("");
 
-  useEffect(() => {
-    let activo = true;
-
-    async function cargarEntrega() {
-      if (!id) {
-        limpiarFormulario();
-        return;
-      }
-
-      try {
-        setCargando(true);
-        setErrorGeneral("");
-        setMensajeOk("");
-
-        const data = await apiEntrega.get(id);
-
-        if (!activo) return;
-
-        setRegistroId(data.id);
-        setForm(mapearEntregaApi(data));
-      } catch (error) {
-        if (!activo) return;
-        setErrorGeneral(error.message || "No se pudo cargar la entrega.");
-      } finally {
-        if (activo) setCargando(false);
-      }
-    }
-
-    cargarEntrega();
-
-    return () => {
-      activo = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  const deshabilitado = guardando;
 
   const limpiarFormulario = () => {
     setForm(crearEstadoInicial());
-    setRegistroId(null);
     setErrores({});
     setErrorGeneral("");
   };
@@ -253,36 +167,43 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
   };
 
   const validar = () => {
-    const e = {};
+    const nuevosErrores = {};
 
-    if (!form.dealer) e.dealer = "Selecciona el dealer.";
-
-    if (!form.nombre.trim()) e.nombre = "Ingresa el nombre del cliente.";
-
-    if (!form.telefono || form.telefono.length < 10) {
-      e.telefono = "Ingresa un teléfono válido.";
+    if (!form.dealer) {
+      nuevosErrores.dealer = "Selecciona el dealer.";
     }
 
-    if (!form.vin.trim()) e.vin = "Ingresa el VIN / Chasis.";
+    if (!form.nombre.trim()) {
+      nuevosErrores.nombre = "Ingresa el nombre del cliente.";
+    }
+
+    if (!form.telefono || form.telefono.length < 10) {
+      nuevosErrores.telefono = "Ingresa un teléfono válido.";
+    }
+
+    if (!form.vin.trim()) {
+      nuevosErrores.vin = "Ingresa el VIN / Chasis.";
+    }
 
     if (!form.modelo || form.modelo === "Seleccionar...") {
-      e.modelo = "Selecciona un modelo.";
+      nuevosErrores.modelo = "Selecciona un modelo.";
     }
 
     if (!form.fechaEntrega) {
-      e.fechaEntrega = "Selecciona fecha y hora de entrega.";
+      nuevosErrores.fechaEntrega = "Selecciona fecha y hora de entrega.";
     }
 
     if (!form.asesorVentas.trim()) {
-      e.asesorVentas = "Selecciona el asesor de ventas.";
+      nuevosErrores.asesorVentas = "Selecciona el asesor de ventas.";
     }
 
     if (!form.preparadaPor.trim()) {
-      e.preparadaPor = "Ingresa quién prepara la entrega.";
+      nuevosErrores.preparadaPor = "Ingresa quién prepara la entrega.";
     }
 
-    setErrores(e);
-    return Object.keys(e).length === 0;
+    setErrores(nuevosErrores);
+
+    return Object.keys(nuevosErrores).length === 0;
   };
 
   const crearPayload = () => ({
@@ -301,38 +222,21 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
     comentarios: form.comentarios.trim(),
   });
 
-  const guardarEntregaSinLimpiar = async () => {
-    const payload = crearPayload();
-
-    const guardado = registroId
-      ? await apiEntrega.patch(registroId, payload)
-      : await apiEntrega.create(payload);
-
-    if (typeof onGuardado === "function") {
-      onGuardado(guardado);
-    }
-
-    setRegistroId(guardado.id);
-    setForm(mapearEntregaApi(guardado));
-
-    return guardado;
-  };
-
-  const handleGuardar = async () => {
+  const handleRegistrarYGenerarPdf = async () => {
     if (!validar()) return;
 
     const formAntesDeLimpiar = { ...form };
 
     try {
       setGuardando(true);
-      setGenerandoPdf(true);
       setErrorGeneral("");
       setMensajeOk("");
 
-      const guardado = await guardarEntregaSinLimpiar();
+      const payload = crearPayload();
+      const guardado = await apiEntrega.create(payload);
 
       if (!guardado?.id) {
-        throw new Error("La entrega se guardó, pero no se recibió el ID para generar el PDF.");
+        throw new Error("La entrega fue registrada, pero el backend no regresó el ID.");
       }
 
       await apiEntrega.downloadPdf(
@@ -341,47 +245,23 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
       );
 
       limpiarFormulario();
-      setMensajeOk("✅ Entrega guardada y PDF generado correctamente.");
+      setMensajeOk("✅ Entrega registrada y PDF generado correctamente.");
+
+      if (typeof onGuardado === "function") {
+        onGuardado(guardado);
+      }
     } catch (error) {
       setErrorGeneral(
-        error.message || "No se pudo guardar la entrega o generar el PDF."
+        error.message || "No se pudo registrar la entrega o generar el PDF."
       );
     } finally {
       setGuardando(false);
-      setGenerandoPdf(false);
     }
   };
 
-  const handleGenerarPdf = async () => {
-    if (!validar()) return;
-
-    const formAntesDeLimpiar = { ...form };
-
-    try {
-      setGuardando(true);
-      setGenerandoPdf(true);
-      setErrorGeneral("");
-      setMensajeOk("");
-
-      const guardado = await guardarEntregaSinLimpiar();
-
-      if (!guardado?.id) {
-        throw new Error("La entrega se guardó, pero no se recibió el ID para generar el PDF.");
-      }
-
-      await apiEntrega.downloadPdf(
-        guardado.id,
-        nombrePdfSeguro(formAntesDeLimpiar, guardado.id)
-      );
-
-      limpiarFormulario();
-      setMensajeOk("✅ PDF generado y encuesta guardada correctamente.");
-    } catch (error) {
-      setErrorGeneral(error.message || "No se pudo generar el PDF.");
-    } finally {
-      setGuardando(false);
-      setGenerandoPdf(false);
-    }
+  const handleLimpiar = () => {
+    limpiarFormulario();
+    setMensajeOk("");
   };
 
   const primerError =
@@ -393,8 +273,6 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
     errores.fechaEntrega ||
     errores.asesorVentas ||
     errores.preparadaPor;
-
-  const deshabilitado = cargando || guardando || generandoPdf;
 
   return (
     <div
@@ -423,16 +301,9 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
           </h1>
 
           <p className="text-white/70 text-xs sm:text-sm mt-1">
-            {registroId ? `Registro #${registroId}` : "Nuevo registro"}
+            Registro de entrega y generación automática de PDF
           </p>
         </div>
-
-        {cargando && (
-          <div className="relative z-10 mx-4 sm:mx-6 mb-3 px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white text-sm font-semibold flex items-center gap-2">
-            <Loader2 size={16} className="animate-spin" />
-            Cargando información...
-          </div>
-        )}
 
         {mensajeOk && (
           <div className="relative z-10 mx-4 sm:mx-6 mb-3 px-4 py-3 rounded-xl bg-green-900/40 border border-green-400/40 text-green-100 text-xs sm:text-sm font-semibold">
@@ -455,7 +326,8 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                 value={form.dealer}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("dealer", e.target.value)}
-                className={`${inputBase} ${errores.dealer ? inputErr : inputOk}`}
+                className={`${inputBase} ${errores.dealer ? inputErr : inputOk
+                  }`}
               >
                 <option value="">Seleccionar...</option>
 
@@ -480,7 +352,8 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                 value={form.nombre}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("nombre", e.target.value)}
-                className={`${inputBase} ${errores.nombre ? inputErr : inputOk}`}
+                className={`${inputBase} ${errores.nombre ? inputErr : inputOk
+                  }`}
               />
             </Campo>
 
@@ -498,7 +371,8 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                   const val = e.target.value.replace(/\D/g, "").slice(0, 12);
                   setCampo("telefono", val);
                 }}
-                className={`${inputBase} ${errores.telefono ? inputErr : inputOk}`}
+                className={`${inputBase} ${errores.telefono ? inputErr : inputOk
+                  }`}
               />
             </Campo>
 
@@ -522,7 +396,8 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
                 value={form.modelo}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("modelo", e.target.value)}
-                className={`${inputBase} ${errores.modelo ? inputErr : inputOk}`}
+                className={`${inputBase} ${errores.modelo ? inputErr : inputOk
+                  }`}
               >
                 {MODELOS.map((modelo) => (
                   <option key={modelo} value={modelo}>
@@ -676,39 +551,26 @@ export default function EditarEntrega({ id = null, onCancelar, onGuardado }) {
         <div className="relative z-10 flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center gap-3 px-4 sm:px-6 py-4 bg-black/30 border-t border-white/10">
           <button
             type="button"
-            onClick={onCancelar}
+            onClick={handleLimpiar}
             disabled={deshabilitado}
             className="w-full sm:w-auto flex justify-center items-center gap-2 bg-red-500 text-white font-bold text-sm px-5 py-3 sm:py-2 rounded-full hover:bg-red-600 transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:hover:translate-y-0"
           >
-            ✕ Cancelar
+            <RotateCcw size={16} />
+            Limpiar
           </button>
 
           <button
             type="button"
-            onClick={handleGenerarPdf}
-            disabled={deshabilitado}
-            className="w-full sm:w-auto flex justify-center items-center gap-2 bg-[#131E5C] text-white border border-white/20 font-bold text-sm px-5 py-3 sm:py-2 rounded-full hover:bg-[#1b2b82] transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:hover:translate-y-0"
-          >
-            {generandoPdf ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <FileText size={16} />
-            )}
-            Generar PDF
-          </button>
-
-          <button
-            type="button"
-            onClick={handleGuardar}
+            onClick={handleRegistrarYGenerarPdf}
             disabled={deshabilitado}
             className="w-full sm:w-auto flex justify-center items-center gap-2 bg-white text-[#0d1f3c] font-bold text-sm px-5 py-3 sm:py-2 rounded-full hover:bg-blue-100 transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:hover:translate-y-0"
           >
-            {guardando || generandoPdf ? (
+            {guardando ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
               <ClipboardCheck size={16} />
             )}
-            Guardar y generar PDF
+            Registrar y generar PDF
           </button>
         </div>
       </div>

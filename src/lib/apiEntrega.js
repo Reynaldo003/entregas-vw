@@ -31,7 +31,8 @@ async function leerError(res) {
       return JSON.stringify(data);
     }
 
-    return await res.text();
+    const texto = await res.text();
+    return texto || `HTTP ${res.status}`;
   } catch {
     return `HTTP ${res.status}`;
   }
@@ -103,6 +104,10 @@ async function crearEntrega(payload) {
 }
 
 async function descargarPdfEntrega(id, nombreArchivo) {
+  if (!id) {
+    throw new Error("No se recibió el ID de la entrega para generar el PDF.");
+  }
+
   const blob = await http(`/citas/api/entregas/${id}/pdf/`, {
     method: "GET",
     responseType: "blob",
