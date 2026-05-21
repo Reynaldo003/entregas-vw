@@ -362,7 +362,7 @@ export default function EditarEntrega({ onGuardado }) {
 
         <div className="relative z-10 px-4 sm:px-6 pb-5">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <Campo error={errores.dealer} hint="Selecciona el dealer.">
+            <Campo error={errores.dealer}>
               <Label icon={<Building2 size={14} />} text="Dealer" required />
               <select
                 value={form.dealer}
@@ -381,7 +381,7 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <Campo error={errores.nombre} hint="Captura el nombre del cliente.">
+            <Campo error={errores.nombre}>
               <Label
                 icon={<User size={14} />}
                 text="Nombre del cliente"
@@ -398,7 +398,7 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.telefono} hint="Captura un teléfono numérico.">
+            <Campo error={errores.telefono}>
               <Label icon={<Phone size={14} />} text="Teléfono" required />
               <input
                 type="text"
@@ -416,7 +416,7 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.vin} hint="Ingresa el VIN o número de chasis.">
+            <Campo error={errores.vin}>
               <Label icon={<Hash size={14} />} text="VIN / Chasis" required />
               <input
                 type="text"
@@ -428,7 +428,7 @@ export default function EditarEntrega({ onGuardado }) {
               />
             </Campo>
 
-            <Campo error={errores.modelo} hint="Selecciona el modelo.">
+            <Campo error={errores.modelo}>
               <Label icon={<Car size={14} />} text="Modelo" required />
               <select
                 value={form.modelo}
@@ -445,7 +445,7 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <Campo error={errores.version} hint="Selecciona la versión.">
+            <Campo error={errores.version}>
               <Label icon={<Layers3 size={14} />} text="Versión" required />
               <select
                 value={form.version}
@@ -462,7 +462,7 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <Campo error={errores.color} hint="Selecciona el color.">
+            <Campo error={errores.color}>
               <Label icon={<Palette size={14} />} text="Color" required />
               <select
                 value={form.color}
@@ -481,7 +481,6 @@ export default function EditarEntrega({ onGuardado }) {
 
             <Campo
               error={errores.fechaEntrega}
-              hint="Selecciona fecha y hora de entrega."
             >
               <Label
                 icon={<Calendar size={14} />}
@@ -500,7 +499,6 @@ export default function EditarEntrega({ onGuardado }) {
 
             <Campo
               error={errores.asesorVentas}
-              hint="Selecciona el asesor de ventas."
             >
               <Label
                 icon={<UserCheck size={14} />}
@@ -568,6 +566,6 @@ export default function EditarEntrega({ onGuardado }) {
           </button>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
