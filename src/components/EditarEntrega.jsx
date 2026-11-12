@@ -6,6 +6,7 @@ import {
   Car,
   ClipboardCheck,
   Hash,
+  Info,
   Loader2,
   MessageSquare,
   Palette,
@@ -18,7 +19,10 @@ import {
 
 import { apiEntrega } from "../lib/apiEntrega";
 
-const fondoRR = new URL("../assets/vw-bg.jpeg", import.meta.url).href;
+import "./EditarEntrega.css";
+
+const fondoVw = new URL("../assets/fondo-vw.png", import.meta.url).href;
+const logoVw = new URL("../assets/vw_white.png", import.meta.url).href;
 
 const DEALERS = [
   "VW Cordoba",
@@ -123,23 +127,15 @@ function crearEstadoInicial() {
   };
 }
 
-const inputBase =
-  "w-full min-h-[44px] px-3 py-2 text-sm rounded-xl bg-blue-950/70 border text-white placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-blue-300/50 transition disabled:opacity-60";
-
-const inputOk = "border-white/15";
-const inputErr = "border-red-500 ring-2 ring-red-500/25";
-
 function Campo({ error, hint, children }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="pe-campo">
       {children}
 
       {error ? (
-        <span className="text-[0.68rem] text-red-300 font-semibold">
-          ⚠ {error}
-        </span>
+        <span className="pe-error">⚠ {error}</span>
       ) : hint ? (
-        <span className="text-[0.68rem] text-white/65">{hint}</span>
+        <span className="pe-hint-text">{hint}</span>
       ) : null}
     </div>
   );
@@ -147,10 +143,10 @@ function Campo({ error, hint, children }) {
 
 function Label({ icon, text, required = false }) {
   return (
-    <label className="text-[0.7rem] sm:text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5 drop-shadow-md">
-      <span className="flex items-center">{icon}</span>
+    <label className="pe-label">
+      <span className="pe-label-icon">{icon}</span>
       {text}
-      {required && <span className="text-red-300">*</span>}
+      {required && <span className="pe-req">*</span>}
     </label>
   );
 }
@@ -318,53 +314,55 @@ export default function EditarEntrega({ onGuardado }) {
     errores.asesorVentas;
 
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center p-3 sm:p-5 lg:p-8 relative font-sans"
-      style={{
-        background: "linear-gradient(135deg, #0a1628 0%, #0d2144 100%)",
-      }}
-    >
+    <div className="pe-page">
       <div
-        className="relative z-10 w-full max-w-6xl backdrop-blur-md rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl overflow-hidden"
-        style={{
-          backgroundImage: `url(${fondoRR})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 bg-[#071126]/75 sm:bg-[#071126]/62 z-0 pointer-events-none" />
+        className="pe-fondo"
+        style={{ backgroundImage: `url(${fondoVw})` }}
+        aria-hidden="true"
+      />
+      <div className="pe-velo" aria-hidden="true" />
 
-        <div className="relative z-10 text-center px-4 sm:px-6 pt-5 sm:pt-7 pb-4">
-          <span className="inline-block text-[0.68rem] font-semibold text-white/85 bg-white/10 border border-white/20 px-4 py-1 rounded-full tracking-wider uppercase mb-3">
+      <div className="pe-shell">
+        <header className="pe-topbar">
+          <div className="pe-brand">
+            <img src={logoVw} alt="Volkswagen" className="pe-brand-logo" />
+            <span className="pe-brand-text">
+              Volkswagen <span className="pe-brand-sep">|</span> CRM
+            </span>
+          </div>
+        </header>
+
+        <div className="pe-badge-row">
+          <span className="pe-badge">
+            <Car size={15} />
             Automotriz R&amp;R
           </span>
-
-          <h1 className="text-white text-2xl sm:text-3xl font-bold tracking-tight">
-            Programacion de Entrega
-          </h1>
         </div>
 
-        {mensajeOk && (
-          <div className="relative z-10 mx-4 sm:mx-6 mb-3 px-4 py-3 rounded-xl bg-green-900/40 border border-green-400/40 text-green-100 text-xs sm:text-sm font-semibold">
-            {mensajeOk}
-          </div>
-        )}
+        <h1 className="pe-title">
+          Programación de Entrega
+          <span className="pe-title-line" />
+        </h1>
 
-        {(primerError || errorGeneral) && (
-          <div className="relative z-10 mx-4 sm:mx-6 mb-3 px-4 py-3 rounded-xl bg-red-900/40 border border-red-400/40 text-red-100 text-xs sm:text-sm font-semibold">
-            ⚠ {errorGeneral || primerError}
-          </div>
-        )}
+        <section className="pe-card">
+          {mensajeOk && (
+            <div className="pe-alert pe-alert--ok">{mensajeOk}</div>
+          )}
 
-        <div className="relative z-10 px-4 sm:px-6 pb-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {(primerError || errorGeneral) && (
+            <div className="pe-alert pe-alert--err">
+              ⚠ {errorGeneral || primerError}
+            </div>
+          )}
+
+          <div className="pe-grid">
             <Campo error={errores.dealer}>
               <Label icon={<Building2 size={14} />} text="Dealer" required />
               <select
                 value={form.dealer}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("dealer", e.target.value)}
-                className={`${inputBase} ${errores.dealer ? inputErr : inputOk
+                className={`pe-control pe-select ${errores.dealer ? "pe-control--error" : ""
                   }`}
               >
                 <option value="">Seleccionar...</option>
@@ -385,11 +383,11 @@ export default function EditarEntrega({ onGuardado }) {
               />
               <input
                 type="text"
-                placeholder="NOMBRE COMPLETO"
+                placeholder="Nombre completo"
                 value={form.nombre}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("nombre", e.target.value)}
-                className={`${inputBase} ${errores.nombre ? inputErr : inputOk
+                className={`pe-control ${errores.nombre ? "pe-control--error" : ""
                   }`}
               />
             </Campo>
@@ -407,7 +405,7 @@ export default function EditarEntrega({ onGuardado }) {
                   const val = e.target.value.replace(/\D/g, "").slice(0, 12);
                   setCampo("telefono", val);
                 }}
-                className={`${inputBase} ${errores.telefono ? inputErr : inputOk
+                className={`pe-control ${errores.telefono ? "pe-control--error" : ""
                   }`}
               />
             </Campo>
@@ -420,7 +418,7 @@ export default function EditarEntrega({ onGuardado }) {
                 value={form.vin}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("vin", e.target.value.toUpperCase())}
-                className={`${inputBase} ${errores.vin ? inputErr : inputOk}`}
+                className={`pe-control ${errores.vin ? "pe-control--error" : ""}`}
               />
             </Campo>
 
@@ -430,7 +428,7 @@ export default function EditarEntrega({ onGuardado }) {
                 value={form.modelo}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("modelo", e.target.value)}
-                className={`${inputBase} ${errores.modelo ? inputErr : inputOk
+                className={`pe-control pe-select ${errores.modelo ? "pe-control--error" : ""
                   }`}
               >
                 {MODELOS.map((modelo) => (
@@ -447,7 +445,7 @@ export default function EditarEntrega({ onGuardado }) {
                 value={form.version}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("version", e.target.value)}
-                className={`${inputBase} ${errores.version ? inputErr : inputOk
+                className={`pe-control pe-select ${errores.version ? "pe-control--error" : ""
                   }`}
               >
                 {VERSIONES.map((version) => (
@@ -464,7 +462,7 @@ export default function EditarEntrega({ onGuardado }) {
                 value={form.color}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("color", e.target.value)}
-                className={`${inputBase} ${errores.color ? inputErr : inputOk
+                className={`pe-control pe-select ${errores.color ? "pe-control--error" : ""
                   }`}
               >
                 {COLORES.map((color) => (
@@ -475,9 +473,7 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <Campo
-              error={errores.fechaEntrega}
-            >
+            <Campo error={errores.fechaEntrega}>
               <Label
                 icon={<Calendar size={14} />}
                 text="Fecha y hora de entrega"
@@ -488,14 +484,12 @@ export default function EditarEntrega({ onGuardado }) {
                 value={form.fechaEntrega}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("fechaEntrega", e.target.value)}
-                className={`${inputBase} ${errores.fechaEntrega ? inputErr : inputOk
-                  } [color-scheme:dark]`}
+                className={`pe-control pe-datetime ${errores.fechaEntrega ? "pe-control--error" : ""
+                  }`}
               />
             </Campo>
 
-            <Campo
-              error={errores.asesorVentas}
-            >
+            <Campo error={errores.asesorVentas}>
               <Label
                 icon={<UserCheck size={14} />}
                 text="Asesor ventas"
@@ -505,7 +499,7 @@ export default function EditarEntrega({ onGuardado }) {
                 value={form.asesorVentas}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("asesorVentas", e.target.value)}
-                className={`${inputBase} ${errores.asesorVentas ? inputErr : inputOk
+                className={`pe-control pe-select ${errores.asesorVentas ? "pe-control--error" : ""
                   }`}
               >
                 <option value="">Seleccionar...</option>
@@ -518,11 +512,8 @@ export default function EditarEntrega({ onGuardado }) {
               </select>
             </Campo>
 
-            <div className="md:col-span-2 xl:col-span-3">
-              <label className="text-[0.7rem] sm:text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5 drop-shadow-md mb-1.5">
-                <MessageSquare size={14} />
-                Comentarios
-              </label>
+            <div className="pe-campo pe-campo--full">
+              <Label icon={<MessageSquare size={14} />} text="Comentarios" />
 
               <textarea
                 placeholder="Notas internas..."
@@ -530,38 +521,45 @@ export default function EditarEntrega({ onGuardado }) {
                 value={form.comentarios}
                 disabled={deshabilitado}
                 onChange={(e) => setCampo("comentarios", e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-xl bg-blue-950/70 border border-white/15 text-white placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-blue-300/50 resize-none transition disabled:opacity-60"
+                className="pe-control pe-textarea"
               />
             </div>
           </div>
-        </div>
 
-        <div className="relative z-10 flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center gap-3 px-4 sm:px-6 py-4 bg-black/30 border-t border-white/10">
-          <button
-            type="button"
-            onClick={handleLimpiar}
-            disabled={deshabilitado}
-            className="w-full sm:w-auto flex justify-center items-center gap-2 bg-red-500 text-white font-bold text-sm px-5 py-3 sm:py-2 rounded-full hover:bg-red-600 transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:hover:translate-y-0"
-          >
-            <RotateCcw size={16} />
-            Limpiar
-          </button>
+          <footer className="pe-footer">
+            <p className="pe-footer-hint">
+              <Info size={17} />
+              Completa la información y registra la programación de entrega.
+            </p>
 
-          <button
-            type="button"
-            onClick={handleRegistrarYGenerarPdf}
-            disabled={deshabilitado}
-            className="w-full sm:w-auto flex justify-center items-center gap-2 bg-white text-[#0d1f3c] font-bold text-sm px-5 py-3 sm:py-2 rounded-full hover:bg-blue-100 transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:hover:translate-y-0"
-          >
-            {guardando ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <ClipboardCheck size={16} />
-            )}
-            Registrar y generar PDF
-          </button>
-        </div>
+            <div className="pe-actions">
+              <button
+                type="button"
+                onClick={handleLimpiar}
+                disabled={deshabilitado}
+                className="pe-btn pe-btn--clean"
+              >
+                <RotateCcw size={16} />
+                Limpiar
+              </button>
+
+              <button
+                type="button"
+                onClick={handleRegistrarYGenerarPdf}
+                disabled={deshabilitado}
+                className="pe-btn pe-btn--primary"
+              >
+                {guardando ? (
+                  <Loader2 size={16} className="pe-spin" />
+                ) : (
+                  <ClipboardCheck size={16} />
+                )}
+                Registrar y generar PDF
+              </button>
+            </div>
+          </footer>
+        </section>
       </div>
-    </div >
+    </div>
   );
 }

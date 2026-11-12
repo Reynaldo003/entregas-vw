@@ -1,0 +1,556 @@
+/* src/components/EditarEntrega.css */
+/* Estilos del módulo Programación de Entrega.
+   Todas las clases usan el prefijo .pe- para no afectar otros módulos del CRM. */
+
+.pe-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #06152f;
+}
+
+/* ── FOTOGRAFÍA DE FONDO ── */
+.pe-fondo {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 850px;
+  z-index: 0;
+  background-size: cover;
+  background-position: 70% top;
+  background-repeat: no-repeat;
+}
+
+/* ── SUPERPOSICIÓN AZUL MARINO SUAVE (solo legibilidad) ── */
+.pe-velo {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 850px;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(6, 21, 47, 0.2) 0%,
+      rgba(6, 21, 47, 0.1) 50%,
+      #06152f 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(6, 21, 47, 0.8) 0%,
+      rgba(6, 21, 47, 0.4) 50%,
+      rgba(6, 21, 47, 0.15) 100%
+    );
+}
+
+/* ── CONTENEDOR GENERAL ── */
+.pe-shell {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 20px 12px 32px;
+}
+
+/* ── ENCABEZADO: MARCA ── */
+.pe-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+}
+
+.pe-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pe-brand-logo {
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.pe-brand-text {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.pe-brand-sep {
+  font-weight: 400;
+  opacity: 0.75;
+  margin: 0 3px;
+}
+
+/* ── BADGE CENTRAL ── */
+.pe-badge-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 26px;
+}
+
+.pe-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: rgba(6, 20, 47, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  box-shadow: 0 6px 20px rgba(2, 8, 20, 0.25);
+}
+
+.pe-badge svg {
+  flex: none;
+}
+
+/* ── TÍTULO ── */
+.pe-title {
+  margin: 16px 0 0;
+  text-align: center;
+  color: #ffffff;
+  font-size: clamp(1.6rem, 3.6vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1.15;
+  text-shadow: 0 6px 24px rgba(2, 8, 20, 0.45);
+}
+
+.pe-title-line {
+  display: block;
+  width: 92px;
+  height: 4px;
+  margin: 12px auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #168bff 0%, #57b4ff 100%);
+  box-shadow: 0 0 14px rgba(22, 139, 255, 0.65);
+}
+
+/* ── CONTENEDOR GLASSMORPHISM ── */
+.pe-card {
+  margin-top: 26px;
+  padding: 16px;
+  border-radius: 28px;
+  background: rgba(23, 54, 111, 0.55);
+  border: 1px solid rgba(137, 186, 255, 0.5);
+  box-shadow: 0 25px 75px rgba(0, 9, 40, 0.45);
+}
+
+/* ── MENSAJES DE ESTADO ── */
+.pe-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.pe-alert--ok {
+  background: rgba(22, 123, 74, 0.35);
+  border: 1px solid rgba(110, 231, 183, 0.45);
+  color: #d1fae5;
+}
+
+.pe-alert--err {
+  background: rgba(140, 20, 30, 0.42);
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  color: #fee2e2;
+}
+
+/* ── GRID DE 3 COLUMNAS ── */
+.pe-grid {
+  display: grid;
+  gap: 24px 28px;
+}
+
+.pe-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.pe-campo--full {
+  grid-column: 1 / -1;
+}
+
+/* ── LABELS ── */
+.pe-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.pe-label-icon {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.pe-label-icon svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.pe-req {
+  color: #ff6b7a;
+  font-weight: 700;
+}
+
+/* ── CONTROLES ── */
+.pe-control {
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  padding: 0 16px;
+  font-size: 16px;
+  font-family: inherit;
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  outline: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.pe-control::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+  opacity: 1;
+  font-weight: 400;
+}
+
+.pe-control:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.pe-control:focus {
+  border-color: #5da8ff;
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px rgba(46, 140, 255, 0.2);
+}
+
+.pe-control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pe-control--error,
+.pe-control--error:hover:not(:disabled) {
+  border-color: #f0444b;
+}
+
+.pe-control--error:focus {
+  border-color: #f0444b;
+  box-shadow: 0 0 0 3px rgba(240, 68, 75, 0.22);
+}
+
+/* ── SELECT CON FLECHA BLANCA ── */
+.pe-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  min-width: 0;
+  font-weight: 600;
+  background-color: rgba(9, 38, 94, 0.9);
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.pe-select option {
+  background-color: #0c2555;
+  color: #ffffff;
+}
+
+.pe-select:focus {
+  background-color: rgba(9, 38, 94, 0.9);
+}
+
+/* ── FECHA Y HORA ── */
+.pe-datetime {
+  color-scheme: dark;
+}
+
+.pe-datetime::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+/* ── COMENTARIOS ── */
+.pe-textarea {
+  height: 96px;
+  min-height: 96px;
+  padding: 12px 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  background-color: rgba(255, 255, 255, 0.1);
+  resize: vertical;
+}
+
+.pe-textarea:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── TEXTOS DE AYUDA / ERROR ── */
+.pe-error {
+  margin-top: 6px;
+  color: #ff9aa2;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.pe-hint-text {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* ── BARRA INFERIOR ── */
+.pe-footer {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(6, 25, 67, 0.85);
+  border: 1px solid rgba(128, 184, 255, 0.3);
+}
+
+.pe-footer-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  line-height: 1.45;
+  text-shadow: 0 1px 3px rgba(2, 8, 20, 0.45);
+}
+
+.pe-footer-hint svg {
+  flex: none;
+  color: #8fc5ff;
+}
+
+.pe-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+}
+
+/* ── BOTONES ── */
+.pe-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  height: 48px;
+  padding: 0 28px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease,
+    color 0.18s ease;
+}
+
+.pe-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.pe-btn--clean {
+  background-color: #f0444b;
+  color: #ffffff;
+}
+
+.pe-btn--clean:hover:not(:disabled) {
+  background-color: #d93a41;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(240, 68, 75, 0.3);
+}
+
+.pe-btn--primary {
+  background-color: #ffffff;
+  color: #0a2b75;
+  font-weight: 700;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+}
+
+.pe-btn--primary:hover:not(:disabled) {
+  background-color: #e9f3ff;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(0, 9, 40, 0.35);
+}
+
+.pe-spin {
+  animation: pe-spin 1s linear infinite;
+}
+
+@keyframes pe-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── TABLET: 2 COLUMNAS ── */
+@media (min-width: 640px) {
+  .pe-fondo {
+    background-position: center top;
+  }
+
+  .pe-shell {
+    padding: 20px 24px 48px;
+  }
+
+  .pe-label {
+    font-size: 12px;
+  }
+
+  .pe-control {
+    font-size: 14px;
+  }
+
+  .pe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pe-card {
+    padding: 28px;
+  }
+
+  .pe-footer {
+    flex-direction: row;
+    align-items: center;
+    padding: 20px;
+  }
+}
+
+/* ── ESCRITORIO: 3 COLUMNAS ── */
+@media (min-width: 1024px) {
+  .pe-shell {
+    padding: 32px 40px 48px;
+  }
+
+  .pe-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pe-card {
+    padding: 36px;
+  }
+}
+
+/* ── MÓVIL: 1 COLUMNA ── */
+@media (max-width: 639px) {
+  .pe-shell {
+    padding: 20px 12px 32px;
+  }
+
+  .pe-brand-logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .pe-brand-text {
+    font-size: 17px;
+  }
+
+  .pe-badge-row {
+    margin-top: 20px;
+  }
+
+  .pe-badge {
+    font-size: 12px;
+    padding: 6px 15px;
+  }
+
+  .pe-title {
+    font-size: 1.55rem;
+  }
+
+  .pe-card {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 28px;
+  }
+
+  .pe-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px 28px;
+  }
+
+  .pe-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .pe-footer-hint {
+    font-size: 13px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .pe-actions {
+    width: 100%;
+    margin-left: 0;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pe-btn {
+    width: 100%;
+  }
+}
